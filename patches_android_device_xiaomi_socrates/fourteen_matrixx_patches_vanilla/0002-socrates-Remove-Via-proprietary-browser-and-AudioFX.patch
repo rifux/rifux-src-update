@@ -1,0 +1,32 @@
+From dd56c29a2ab24aaffe7b397d8ae93396680f3b54 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Blinkov=20=60rifux=60=20Vladimir=20=E2=99=AA?=
+ <contact@rifux.dev>
+Subject: [PATCH 2/3] socrates: Remove Via proprietary browser and AudioFX
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Via browser will be replaced with standart Jelly browser automatically
+
+Signed-off-by: Blinkov `rifux` Vladimir ♪ <contact@rifux.dev>
+---
+ lineage_socrates.mk | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/lineage_socrates.mk b/lineage_socrates.mk
+index 92e6399..eea6451 100644
+--- a/lineage_socrates.mk
++++ b/lineage_socrates.mk
+@@ -41,6 +41,9 @@ MATRIXX_BATTERY := 5000mAh
+ MATRIXX_DISPLAY := 1440x3200
+ 
+ # Matrixx build flags
++TARGET_EXCLUDES_VIA := true
++TARGET_EXCLUDES_AUDIOFX := true
++
+ # | Google
+ #WITH_GMS := true
+ 
+-- 
+2.47.0
+

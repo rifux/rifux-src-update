@@ -1,0 +1,29 @@
+From c30d08be72ca14bce68d4c07241de61ed1028776 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Blinkov=20=60rifux=60=20Vladimir=20=E2=99=AA?=
+ <contact@rifux.dev>
+Subject: [PATCH] socrates: Fix `user` build type
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The difference between fingerprint in lineage_socrates.mk makefile and proprietary vendor can
+cause bootloop at user build type.
+
+Signed-off-by: Blinkov `rifux` Vladimir ♪ <contact@rifux.dev>
+---
+ lineage_socrates.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lineage_socrates.mk b/lineage_socrates.mk
+index 5720666..8b7ef3f 100644
+--- a/lineage_socrates.mk
++++ b/lineage_socrates.mk
+@@ -20,4 +20,4 @@ PRODUCT_MODEL := Redmi K60 Pro
+ PRODUCT_BRAND := Redmi
+ PRODUCT_MANUFACTURER := Xiaomi
+ 
+-BUILD_FINGERPRINT := Redmi/socrates/socrates:14/UKQ1.230804.001/V816.0.11.0.UMKCNXM:user/release-keys
++BUILD_FINGERPRINT := Redmi/socrates/socrates:13/UKQ1.230804.001/V816.0.11.0.UMKCNXM:user/release-keys
+-- 
+2.47.0
+

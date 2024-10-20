@@ -1,0 +1,58 @@
+From 7fbaabeb2980ef143779bf31f9cf4f8021addbbd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Blinkov=20=60rifux=60=20Vladimir=20=E2=99=AA?=
+ <contact@rifux.dev>
+Subject: [PATCH 3/3] socrates: Add envsetup.sh for device trees
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The KernelSU sources fetching may look a bit tricky, but it works for
+sure.
+
+Signed-off-by: Blinkov `rifux` Vladimir ♪ <contact@rifux.dev>
+---
+ vendorsetup.sh | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+ create mode 100644 vendorsetup.sh
+
+diff --git a/vendorsetup.sh b/vendorsetup.sh
+new file mode 100644
+index 0000000..82df1cd
+--- /dev/null
++++ b/vendorsetup.sh
+@@ -0,0 +1,31 @@
++#!/usr/bin/bash
++
++#
++# Copyright (C) 2024 Vladimir `rifux` Blinkov
++#
++# SPDX-License-Identifier: Apache-2.0
++#
++
++# Vendor
++echo 'Cloning Vendor Tree...'
++git clone -b V816.0.24.7.28.DEV https://codeberg.org/rifux/proprietary_vendor_xiaomi_socrates vendor/xiaomi/socrates
++
++# Kernel
++echo 'Cloning Kernel Tree...'
++git clone -b fourteen https://github.com/rifux/android_kernel_xiaomi_sm8550 kernel/xiaomi/sm8550
++git clone -b lineage-21 https://github.com/rifux/android_kernel_xiaomi_sm8550-modules kernel/xiaomi/sm8550-modules
++git clone -b lineage-21 https://github.com/rifux/android_kernel_xiaomi_sm8550-devicetrees kernel/xiaomi/sm8550-devicetrees
++
++# Hardware
++echo 'Cloning hardware/xiaomi...'
++git clone -b lineage-21 https://github.com/LineageOS/android_hardware_xiaomi hardware/xiaomi
++
++# MIUI camera
++echo 'Cloning vendor/xiaomi/socrates-camera'
++git clone -b V816.0.24.7.28.DEV https://codeberg.org/rifux/android_vendor_xiaomi_socrates-camera vendor/xiaomi/socrates-camera
++
++# KernelSU
++echo 'Fetching kernel/xiaomi/sm8550/KernelSU'
++cd kernel/xiaomi/sm8550
++git submodule init && git submodule update KernelSU
++cd ../../..
+\ No newline at end of file
+-- 
+2.47.0
+
