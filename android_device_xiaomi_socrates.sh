@@ -14,6 +14,12 @@ git reset --hard los/lineage-21
 git am -3 ../patches_android_device_xiaomi_socrates/fourteen_lineage_patches/*
 git push --force
 
+# Updating Voltage
+git checkout fourteen/voltage
+git reset --hard origin/fourteen/lineage
+git am -3 ../patches_android_device_xiaomi_socrates/fourteen_voltage_patches/*
+git push --force
+
 # Updating Matrixx
 # |- GApps
 git checkout fourteen/matrixx/gapps

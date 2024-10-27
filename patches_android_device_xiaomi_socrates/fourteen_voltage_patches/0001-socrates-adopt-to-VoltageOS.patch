@@ -1,0 +1,314 @@
+From f63548b578e69b319186e13b8ebcddfabf825e7f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Blinkov=20=60rifux=60=20Vladimir=20=E2=99=AA?=
+ <contact@rifux.dev>
+Subject: [PATCH] socrates: adopt to VoltageOS
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Blinkov `rifux` Vladimir ♪ <contact@rifux.dev>
+---
+ AndroidProducts.mk                            |  2 +-
+ BoardConfig.mk                                |  8 +-
+ device.mk                                     |  4 +
+ lineage_socrates.mk                           | 23 -----
+ .../base/core/res/res/values/config.xml       | 86 +++++++++++++++++++
+ .../Settings/res/values/voltage_strings.xml   | 19 ++++
+ lineage.dependencies => voltage.dependencies  |  0
+ voltage/product_launched_with_t.mk            |  2 +
+ voltage_socrates.mk                           | 53 ++++++++++++
+ 9 files changed, 169 insertions(+), 28 deletions(-)
+ delete mode 100644 lineage_socrates.mk
+ create mode 100644 overlay-voltage/frameworks/base/core/res/res/values/config.xml
+ create mode 100644 overlay-voltage/packages/apps/Settings/res/values/voltage_strings.xml
+ rename lineage.dependencies => voltage.dependencies (100%)
+ create mode 100644 voltage/product_launched_with_t.mk
+ create mode 100644 voltage_socrates.mk
+
+diff --git a/AndroidProducts.mk b/AndroidProducts.mk
+index a4ed9f5..cdff36e 100644
+--- a/AndroidProducts.mk
++++ b/AndroidProducts.mk
+@@ -5,4 +5,4 @@
+ #
+ 
+ PRODUCT_MAKEFILES := \
+-    $(LOCAL_DIR)/lineage_socrates.mk
++    $(LOCAL_DIR)/voltage_socrates.mk
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 8a507e9..9b163fa 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -1,5 +1,5 @@
+ #
+-# Copyright (C) 2024 The LineageOS Project
++# Copyright (C) 2024 The LineageOS Project, Vladimir `rifux` Blinkov
+ #
+ # SPDX-License-Identifier: Apache-2.0
+ #
+@@ -71,7 +71,7 @@ BOARD_USES_QCOM_HARDWARE := true
+ BOARD_KERNEL_BASE        := 0x00000000
+ BOARD_KERNEL_PAGESIZE    := 4096
+ 
+-BOARD_KERNEL_CMDLINE := video=vfb:640x400,bpp=32,memsize=3072000 disable_dma32=on swinfo.fingerprint=$(LINEAGE_VERSION) mtdoops.fingerprint=$(LINEAGE_VERSION)
++BOARD_KERNEL_CMDLINE := video=vfb:640x400,bpp=32,memsize=3072000 disable_dma32=on swinfo.fingerprint=$(VOLTAGE_VERSION) mtdoops.fingerprint=$(VOLTAGE_VERSION) androidboot.init_fatal_reboot_target=recovery
+ 
+ BOARD_BOOTCONFIG := androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 androidboot.console=ttyMSM0
+ 
+@@ -155,7 +155,7 @@ $(foreach p, $(call to-upper, $(BOARD_XIAOMI_DYNAMIC_PARTITIONS_PARTITION_LIST))
+     $(eval TARGET_COPY_OUT_$(p) := $(call to-lower, $(p))))
+ 
+ BOARD_PRODUCTIMAGE_MINIMAL_PARTITION_RESERVED_SIZE := false
+-include vendor/lineage/config/BoardConfigReservedSize.mk
++include vendor/voltage/config/BoardConfigReservedSize.mk
+ 
+ BOARD_ROOT_EXTRA_FOLDERS += vendor/firmware vendor/firmware_mnt
+ BOARD_ROOT_EXTRA_SYMLINKS += /lib/modules:/vendor/lib/modules
+@@ -195,7 +195,7 @@ TARGET_QTI_VIBRATOR_USE_EFFECT_STREAM := true
+ DEVICE_MATRIX_FILE := $(DEVICE_PATH)/configs/vintf/compatibility_matrix.xml
+ DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := \
+     $(DEVICE_PATH)/configs/vintf/framework_matrix.xml \
+-    vendor/lineage/config/device_framework_matrix.xml
++    vendor/voltage/config/device_framework_matrix.xml
+ DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/configs/vintf/manifest.xml
+ 
+ # Vendor security patch
+diff --git a/device.mk b/device.mk
+index 836a996..d7f48e1 100644
+--- a/device.mk
++++ b/device.mk
+@@ -243,6 +243,10 @@ PRODUCT_PACKAGES += \
+     SettingsOverlaySocrates \
+     TelephonyOverlaySocrates
+ 
++# Device overlay
++DEVICE_PACKAGE_OVERLAYS += \
++    $(LOCAL_PATH)/overlay-voltage
++
+ # Power
+ PRODUCT_PACKAGES += \
+     android.hardware.power-service-qti
+diff --git a/lineage_socrates.mk b/lineage_socrates.mk
+deleted file mode 100644
+index 8b7ef3f..0000000
+--- a/lineage_socrates.mk
++++ /dev/null
+@@ -1,23 +0,0 @@
+-#
+-# Copyright (C) 2024 The LineageOS Project
+-#
+-# SPDX-License-Identifier: Apache-2.0
+-#
+-
+-# Inherit common AOSP configurations
+-$(call inherit-product, build/make/target/product/full_base_telephony.mk)
+-$(call inherit-product, build/make/target/product/core_64_bit_only.mk)
+-
+-# Inherit device-specific configurations
+-$(call inherit-product, device/xiaomi/socrates/device.mk)
+-
+-# Inherit LineageOS configurations
+-$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
+-
+-PRODUCT_NAME := lineage_socrates
+-PRODUCT_DEVICE := socrates
+-PRODUCT_MODEL := Redmi K60 Pro
+-PRODUCT_BRAND := Redmi
+-PRODUCT_MANUFACTURER := Xiaomi
+-
+-BUILD_FINGERPRINT := Redmi/socrates/socrates:13/UKQ1.230804.001/V816.0.11.0.UMKCNXM:user/release-keys
+diff --git a/overlay-voltage/frameworks/base/core/res/res/values/config.xml b/overlay-voltage/frameworks/base/core/res/res/values/config.xml
+new file mode 100644
+index 0000000..d532ff1
+--- /dev/null
++++ b/overlay-voltage/frameworks/base/core/res/res/values/config.xml
+@@ -0,0 +1,86 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++/*
++** Copyright 2019, The LineageOS Project
++**
++** Licensed under the Apache License, Version 2.0 (the "License");
++** you may not use this file except in compliance with the License.
++** You may obtain a copy of the License at
++**
++**     http://www.apache.org/licenses/LICENSE-2.0
++**
++** Unless required by applicable law or agreed to in writing, software
++** distributed under the License is distributed on an "AS IS" BASIS,
++** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++** See the License for the specific language governing permissions and
++** limitations under the License.
++*/
++-->
++
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++
++    <!-- Whether device has screen with higher aspect ratio -->
++    <bool name="config_haveHigherAspectRatioScreen">true</bool>
++
++    <!-- All the capabilities of the LEDs on this device, stored as a bit field.
++         This integer should equal the sum of the corresponding value for each
++         of the following capabilities present:
++
++         // Device has a color adjustable battery light.
++         LIGHTS_RGB_NOTIFICATION_LED = 1
++
++         // Device has a color adjustable notification light.
++         LIGHTS_RGB_BATTERY_LED = 2
++
++         LIGHTS_MULTIPLE_NOTIFICATION_LED = 4 (deprecated)
++
++         // The notification light has adjustable pulsing capability.
++         LIGHTS_PULSATING_LED = 8
++
++         // Device has a multi-segment battery light that is able to
++         // use the light brightness value to determine how many
++         // segments to show (in order to represent battery level).
++         LIGHTS_SEGMENTED_BATTERY_LED = 16
++
++         // The notification light supports HAL adjustable brightness
++         // via the alpha channel.
++         // Note: if a device notification light supports LIGHTS_RGB_NOTIFICATION_LED
++         // then HAL support is not necessary for brightness control.  In this case,
++         // brightness support will be provided by lineage-sdk through the scaling of
++         // RGB color values.
++         LIGHTS_ADJUSTABLE_NOTIFICATION_LED_BRIGHTNESS = 32
++
++         // Device has a battery light.
++         LIGHTS_BATTERY_LED = 64
++
++         // The battery light supports HAL adjustable brightness via
++         // the alpha channel.
++         // Note: if a device battery light supports LIGHTS_RGB_BATTERY_LED then HAL
++         // support is not necessary for brightness control.  In this case,
++         // brightness support will be provided by lineage-sdk through the scaling of
++         // RGB color values.
++         LIGHTS_ADJUSTABLE_BATTERY_LED_BRIGHTNESS = 128
++
++         For example, a device with notification and battery lights that supports
++         pulsating and RGB control would set this config to 75. -->
++    <integer name="config_deviceLightCapabilities">72</integer>
++
++    <!-- The list of package IDs that are allowed to use aux cameras.
++         NOTE: If this list is empty then all apps will be able to use aux cameras. -->
++    <string-array name="config_cameraAuxPackageAllowList" translatable="false">
++        <item>org.codeaurora.snapcam</item>
++        <item>com.android.camera</item>
++        <item>com.google.camera</item>
++        <item>org.lineageos.aperture</item>
++        <item>org.lineageos.aperture.dev</item>
++    </string-array>
++    
++    <!-- The list of package IDs that are not allowed to use aux cameras. -->
++    <string-array name="config_cameraAuxPackageExcludeList" translatable="false">
++        <item>org.telegram.messenger</item>
++        <item>com.microsoft.teams</item>
++        <item>com.discord</item>
++        <item>org.thunderdog.challegram</item>
++        <item>tw.nekomimi.nekogram</item>
++    </string-array>
++</resources>
+\ No newline at end of file
+diff --git a/overlay-voltage/packages/apps/Settings/res/values/voltage_strings.xml b/overlay-voltage/packages/apps/Settings/res/values/voltage_strings.xml
+new file mode 100644
+index 0000000..4d6be7f
+--- /dev/null
++++ b/overlay-voltage/packages/apps/Settings/res/values/voltage_strings.xml
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2022 VoltageOS
++    Licensed under the Apache License, Version 2.0 (the "License");
++    you may not use this file except in compliance with the License.
++    You may obtain a copy of the License at
++    
++     http://www.apache.org/licenses/LICENSE-2.0
++     
++    Unless required by applicable law or agreed to in writing, software
++    distributed under the License is distributed on an "AS IS" BASIS,
++    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++    See the License for the specific language governing permissions and
++    limitations under the License.
++-->
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++
++    <string name="voltage_maintainer">Blinkov Vladimir</string>
++
++</resources> 
+\ No newline at end of file
+diff --git a/lineage.dependencies b/voltage.dependencies
+similarity index 100%
+rename from lineage.dependencies
+rename to voltage.dependencies
+diff --git a/voltage/product_launched_with_t.mk b/voltage/product_launched_with_t.mk
+new file mode 100644
+index 0000000..3ec4b6c
+--- /dev/null
++++ b/voltage/product_launched_with_t.mk
+@@ -0,0 +1,2 @@
++#PRODUCT_SHIPPING_API_LEVEL indicates the first api level, device has been commercially launched on.
++PRODUCT_SHIPPING_API_LEVEL := 33
+\ No newline at end of file
+diff --git a/voltage_socrates.mk b/voltage_socrates.mk
+new file mode 100644
+index 0000000..94df065
+--- /dev/null
++++ b/voltage_socrates.mk
+@@ -0,0 +1,53 @@
++#
++# Copyright (C) 2024 The LineageOS Project, Vladimir `rifux` Blinkov
++#
++# SPDX-License-Identifier: Apache-2.0
++#
++
++# Release name
++PRODUCT_RELEASE_NAME := socrates
++
++# Inherit from those products. Most specific first.
++$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
++$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
++$(call inherit-product, device/xiaomi/socrates/voltage/product_launched_with_t.mk)
++
++# Inherit device-specific configurations
++$(call inherit-product, device/xiaomi/socrates/device.mk)
++
++# Inherit VoltageOS configurations
++$(call inherit-product, vendor/voltage/config/common_full_phone.mk)
++TARGET_SUPPORTS_QUICK_TAP := true
++TARGET_DOESNT_LIKE_FLIPENDO := true
++TARGET_ENABLE_BLUR := true
++
++# Inherit extras
++# <placeholder>
++
++# Official-ify
++VOLTAGE_BUILD_TYPE := UNOFFICIAL
++
++# UDFPS animations
++EXTRA_UDFPS_ANIMATIONS := true
++
++# Bootanimation Resolution
++TARGET_BOOT_ANIMATION_RES := 3200
++
++# Device info
++PRODUCT_DEVICE := socrates
++PRODUCT_NAME := voltage_socrates
++PRODUCT_BRAND := Redmi
++PRODUCT_MODEL := Redmi K60 Pro
++PRODUCT_MANUFACTURER := Xiaomi
++
++BUILD_FINGERPRINT := "Redmi/socrates/socrates:13/UKQ1.230804.001/V816.0.11.0.UMKCNXM:user/release-keys"
++
++PRODUCT_BUILD_PROP_OVERRIDES += \
++    PRIVATE_BUILD_DESC="socrates-user 13 UKQ1.230804.001 V816.0.11.0.UMKCNXM:user release-keys" \
++    PRODUCT_NAME="socrates" \
++    TARGET_DEVICE="socrates"
++
++PRODUCT_PROPERTY_OVERRIDES += \
++    ro.build.fingerprint=$(BUILD_FINGERPRINT)
++
++PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
+\ No newline at end of file
+-- 
+2.47.0
+
