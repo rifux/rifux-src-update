@@ -1,0 +1,29 @@
+From 099593164d6051e6fd8ccfec90365d446047c877 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Blinkov=20=60rifux=60=20Vladimir=20=E2=99=AA?=
+ <contact@rifux.dev>
+Subject: [PATCH] socrates: Remove lunch choices as deprecated
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Blinkov `rifux` Vladimir ♪ <contact@rifux.dev>
+---
+ AndroidProducts.mk | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/AndroidProducts.mk b/AndroidProducts.mk
+index 9d249ad..a4ed9f5 100644
+--- a/AndroidProducts.mk
++++ b/AndroidProducts.mk
+@@ -6,8 +6,3 @@
+ 
+ PRODUCT_MAKEFILES := \
+     $(LOCAL_DIR)/lineage_socrates.mk
+-
+-COMMON_LUNCH_CHOICES := \
+-    lineage_socrates-eng \
+-    lineage_socrates-user \
+-    lineage_socrates-userdebug
+-- 
+2.47.0
+
