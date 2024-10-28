@@ -1,0 +1,30 @@
+From daab584873ec2bec7870d4cbe41a65657ff40b87 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Blinkov=20=60rifux=60=20Vladimir=20=E2=99=AA?=
+ <contact@rifux.dev>
+Subject: [PATCH] socrates: Set clang version to 487747c
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Change clang version to not raise warnings to errors
+
+Signed-off-by: Blinkov `rifux` Vladimir ♪ <contact@rifux.dev>
+---
+ BoardConfig.mk | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 9b163fa..d0548b1 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -89,6 +89,7 @@ TARGET_KERNEL_CONFIG := \
+     vendor/kalama_GKI.config \
+     vendor/socrates_GKI.config
+ KERNEL_LTO := none
++TARGET_KERNEL_CLANG_VERSION := r487747c
+ 
+ BOARD_USES_QCOM_MERGE_DTBS_SCRIPT := true
+ TARGET_NEEDS_DTBOIMAGE := true
+-- 
+2.47.0
+
